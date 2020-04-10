@@ -5,7 +5,7 @@ rule freebayes:
         # you can have a list of samples here
         samples=get_group_bams
     output:
-        "results/candidate-calls/{group}.freebayes.bcf"
+        pipe("pipe/candidate-calls/{group}.freebayes.bcf")
     log:
         "logs/freebayes/{group}.log"
     params:
@@ -14,6 +14,17 @@ rule freebayes:
     threads: 100 # use all available cores for calling
     wrapper:
         "0.50.3/bio/freebayes"
+
+
+rule freebayes_filter:
+    input:
+        "pipe/candidate-calls/{group}.freebayes.bcf"
+    output:
+        "results/candidate-calls/{group}.freebayes.bcf"
+    threads: 0
+    shell:
+        "cat {input} | bcftools filter --exclude 'QUAL<1 | FORMAT/AO=0' -Ob > {output}"
+
 
 
 rule delly:

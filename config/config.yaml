@@ -1,9 +1,9 @@
-samples: config/samples.tsv
+samples: config/samples_epilepsie.tsv
 
-units: config/units.tsv
+units: config/units_epilepsie.tsv
 
 igv_report:
-  activate: true
+  activate: False
 
 ref:
   # Number of chromosomes to consider for calling.
@@ -34,6 +34,7 @@ tmb:
 
 # printing of variants in a matrix, sorted by recurrence
 oncoprint:
+  activate: false
   # if stratificatio is deactivated, one oncoprint for all
   # samples will be created.
   stratify:
@@ -43,7 +44,7 @@ oncoprint:
 
 calling:
   delly:
-    activate: true
+    activate: false
   freebayes:
     activate: true
   # See https://varlociraptor.github.io/docs/calling/#generic-variant-calling
@@ -53,15 +54,16 @@ calling:
     # and can be referred in FDR control below to generate calls for different events.
     # In particular, you can also filter by ID or dbsnp annotations here.
     # See http://snpeff.sourceforge.net/SnpSift.html#filter
-    filtername: "ANN[*].IMPACT has 'MODERATE'"
+    #    filtername: "ANN[*].IMPACT has 'MODERATE'"
+    lowMAF_nearGene: "(ANN[*].EFFECT != 'intergenic_region') & !(AF_nfe>0.1)"
   fdr-control:
     threshold: 0.05
     events: 
       # Add any number of events here to filter for.
-      present:
+      ALL:
         varlociraptor: 
-          - "PRESENT"
-        filter: filtername
+          - "ALL"
+        filter: lowMAF_nearGene
 
 annotations:
   dbnsfp:
@@ -95,6 +97,7 @@ annotations:
     activate: true
     # annotate with known variants from ensembl
     known: resources/variation.vcf.gz
+    gnomad: /vol/huge/depienne/gnomead/results/gnomad.genomes.r3.0.sites.allpop.vcf.bgz
     # add more external VCFs as needed
     # cosmic: path/to/cosmic.vcf.gz
   dgidb:
@@ -106,3 +109,4 @@ params:
     MarkDuplicates: "VALIDATION_STRINGENCY=LENIENT"
   gatk:
     BaseRecalibrator: ""
+  freebayes: "--haplotype-length -1 -G 4 -F 0.15"
