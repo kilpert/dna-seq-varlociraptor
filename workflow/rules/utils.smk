@@ -15,9 +15,9 @@ rule bcf_index:
 
 rule bam_index:
     input:
-        "{prefix}.sorted.bam"
+        "{prefix}.bam"
     output:
-        "{prefix}.sorted.bam.bai"
+        "{prefix}.bam.bai"
     log:
         "logs/bam-index/{prefix}.log"
     wrapper:
