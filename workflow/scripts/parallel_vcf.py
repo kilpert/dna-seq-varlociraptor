@@ -33,7 +33,7 @@ command = args.command
 with tempfile.TemporaryDirectory(dir=tmp_base) as tmp_dir:
 
     def execute_partial(x):
-        cmd = f"bcftools view -r {x} {args.file_vcf} -Ou | bcftools view -t {x} | {command} | bcftools view -Ob > {t}/{x}.bcf"
+        cmd = f"bcftools view -r {x} {args.file_vcf} -Ou | bcftools view -t {x} | {command} | bcftools view -Ob > {tmp_dir}/{x}.bcf"
         os.system(cmd)
         return os.path.join(tmp_dir, f"{x}.bcf")
 

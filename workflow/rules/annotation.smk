@@ -50,7 +50,7 @@ rule annotate_vcfs:
     conda:
         "../envs/snpsift.yaml"
     shell:
-        "(python ../workflow/scripts/parallel_vcf.py --threads {threads} {input.bcf} '{params.pipes}' | bcftools view --threads {threads} -Ob > {output}) 2> {log}"
+        "(python workflow/scripts/parallel_vcf.py --threads {threads} {input.bcf} '{params.pipes}' | bcftools view --threads {threads} -Ob > {output}) 2> {log}"
 
 
 rule annotate_dgidb:

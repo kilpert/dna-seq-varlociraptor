@@ -34,7 +34,7 @@ rule varlociraptor_call:
         obs=get_group_observations,
         scenario="results/scenarios/{group}.yaml"
     output:
-        temp("results/calls/{group}.{caller}.bcf")
+        "results/calls/{group}.{caller}.bcf"
     log:
         "logs/varlociraptor/call/{group}.{caller}.log"
     params:
