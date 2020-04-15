@@ -55,7 +55,7 @@ calling:
     # In particular, you can also filter by ID or dbsnp annotations here.
     # See http://snpeff.sourceforge.net/SnpSift.html#filter
     #    filtername: "ANN[*].IMPACT has 'MODERATE'"
-    lowMAF_nearGene: "(ANN[*].EFFECT != 'intergenic_region') & !(AF_nfe>0.1)"
+    lowMAF_nearGene: "!(ANN[ALL].EFFECT =~ 'intergenic_region|intron_variant|upstream_gene_variant|downstream_gene_variant|.*UTR.*|non_coding.*|TF_binding_site_variant') & !(gnomad_AF>0.01) & !(ANN[ALL].ERRORS has 'ERROR_CHROMOSOME_NOT_FOUND')"
   fdr-control:
     threshold: 0.05
     events: 
@@ -97,7 +97,8 @@ annotations:
     activate: true
     # annotate with known variants from ensembl
     known: resources/variation.vcf.gz
-    gnomad: /vol/huge/depienne/gnomead/results/gnomad.genomes.r3.0.sites.allpop.vcf.bgz
+    gnomad: /vol/huge/depienne/gnomead/results/gnomad.genomes.r3.0.sites.allpop.vcf.gz
+    intsplice: /vol/huge/depienne/intsplice/intsplice_hg38.vcf.gz
     # add more external VCFs as needed
     # cosmic: path/to/cosmic.vcf.gz
   dgidb:
