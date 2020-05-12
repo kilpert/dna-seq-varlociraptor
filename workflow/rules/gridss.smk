@@ -45,7 +45,7 @@ rule GridssCollectMetricsAndExtractSVReads:
     params:
         dir=temp("tmp/{sample}.sorted.bam.gridss.working"),
         prefix=temp("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam"),
-        tmp_sort=temp("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.namedsort"),
+        tmp_sort=temp("tmp/{sample}.sorted.bam.gridss.working"),
         maxcoverage=50000,
         picardoptions="",
     conda:
@@ -77,13 +77,12 @@ UNMAPPED_READS=false \
 MIN_CLIP_LENGTH=5 \
 INCLUDE_DUPLICATES=true \
 {params.picardoptions} \
-| samtools sort \
--n \
+| sambamba sort \
+-N \
 -m 100G \
--T {params.tmp_sort} \
--Obam \
+--tmpdir {params.tmp_sort} \
 -o {output.namedsorted_bam} \
--@ {threads} \
+-t {threads} \
 /dev/stdin) > {log} 2>&1
         """
 
@@ -99,7 +98,7 @@ rule GridssComputeSamTags:
         "log/gridss/compute_sam_tags/{sample}.log"
     params:
         working_dir="tmp",
-        tmp_sort=temp("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.coordinate-tmp"),
+        tmp_sort=temp("tmp/{sample}.sorted.bam.gridss.working"),
         dir=temp("tmp/{sample}.sorted.bam.gridss.working"),
         picardoptions="",
     conda:
@@ -130,12 +129,11 @@ TAGS=MC \
 TAGS=MQ \
 ASSUME_SORTED=true \
 {params.picardoptions} \
-| samtools sort \
+| sambamba sort \
 -m 100G \
--T {params.tmp_sort} \
--Obam \
+--tmpdir {params.tmp_sort} \
 -o {output.coordinate_bam} \
--@ {threads} \
+-t {threads} \
 /dev/stdin) > {log} 2>&1
         """
 
@@ -179,14 +177,14 @@ rule GridssSortSv:
         supp_sv="{x}.sc2sr.supp.sv.bam"
     output:
         supp_sv=temp("{x}.sc2sr.suppsorted.sv.bam")
-    params:
-        tmp_sort="{x}.suppsorted.sv-tmp",
+#    params:
+#        tmp_sort="{x}.suppsorted.sv-tmp",
     conda:
         "../envs/gridss.yaml"
     threads:
         100
     shell:
-        "samtools sort -m 100G -@ {threads} -T {params.tmp_sort} -Obam -o {output.supp_sv} {input.supp_sv}"
+        "sambamba sort -m 100G -t {threads} -o {output.supp_sv} {input.supp_sv}"
 
 
 rule GridssMergeSupported:
@@ -322,7 +320,7 @@ rule GridssIdentifyVariants:
         assembly_sv_index="tmp/group.{group}.bam.gridss.working/group.{group}.bam.sv.bam.bai",
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam",
         ref="resources/genome.fasta",
-        svs=lambda wildcards: " ".join(expand("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam.sv.bam", sample=get_group_samples(wildcards))),
+        svs=lambda wildcards: expand("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam.sv.bam", sample=get_group_samples(wildcards)),
         idx=rules.bwa_index.output,
     output:
         unallocated=temp("tmp/group.{group}.vcf.gridss.working/group.{group}.unallocated.vcf")
@@ -358,7 +356,7 @@ rule GridssAnnotateVariants:
         unallocated="tmp/group.{group}.vcf.gridss.working/group.{group}.unallocated.vcf",
         ref="resources/genome.fasta",
         idx=rules.bwa_index.output,
-        svs=lambda wildcards: " ".join(expand("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam.sv.bam", sample=get_group_samples(wildcards))),
+        svs=lambda wildcards: expand("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam.sv.bam", sample=get_group_samples(wildcards)),
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam",
     output:
         allocated=temp("tmp/group.{group}.vcf.gridss.working/group.{group}.allocated.vcf"),

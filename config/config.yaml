@@ -58,6 +58,8 @@ calling:
     # See http://snpeff.sourceforge.net/SnpSift.html#filter
     #    filtername: "ANN[*].IMPACT has 'MODERATE'"
     lowMAF_nearGene: "!(ANN[ALL].EFFECT =~ 'intergenic_region|intron_variant|upstream_gene_variant|downstream_gene_variant|.*UTR.*|non_coding.*|TF_binding_site_variant') & !(gnomad_AF>0.01) & !(ANN[ALL].ERRORS has 'ERROR_CHROMOSOME_NOT_FOUND')"
+    non_intergenic: "!(ANN[ALL].EFFECT =~ 'intergenic_region') & !(gnomad_AF>0.1)"
+    # non_coding?
   fdr-control:
     threshold: 0.05
     events: 
@@ -66,6 +68,10 @@ calling:
         varlociraptor: 
           - "ALL"
         filter: lowMAF_nearGene
+      NON_INTERGENIC:
+        varlociraptor: 
+          - "ALL"
+        filter: non_intergenic
 
 annotations:
   dbnsfp:
