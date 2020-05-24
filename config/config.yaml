@@ -64,13 +64,17 @@ calling:
     threshold: 0.05
     events: 
       # Add any number of events here to filter for.
-      ALL:
+      #ALL:
+      #  varlociraptor: 
+      #    - "ALL"
+      #  filter: lowMAF_nearGene
+      ALL_NON_INTERGENIC:
         varlociraptor: 
           - "ALL"
-        filter: lowMAF_nearGene
-      NON_INTERGENIC:
+        filter: non_intergenic
+      THREE_OF_FOUR_NON_INTERGENIC:
         varlociraptor: 
-          - "ALL"
+          - "THREE_OF_FOUR"
         filter: non_intergenic
 
 annotations:
