@@ -20,7 +20,7 @@ rule bwa_mem:
          reads=get_map_reads_input,
          idx=rules.bwa_index.output
     output:
-        bam=temp("results/mapped/{sample}.sorted.bam")
+        bam=temp("results/dedup/{sample}.sorted.bam"),
     log:
         "logs/bwa_mem/{sample}.log"
     params:
@@ -32,18 +32,18 @@ rule bwa_mem:
         "0.58.0/bio/bwa/mem-samblaster"
 
 
-rule mark_duplicates:
-    input:
-        "results/mapped/{sample}.sorted.bam"
-    output:
-        bam=temp("results/dedup/{sample}.sorted.bam"),
-        metrics="results/qc/dedup/{sample}.metrics.txt"
-    log:
-        "logs/picard/dedup/{sample}.log"
-    params:
-        config["params"]["picard"]["MarkDuplicates"]
-    wrapper:
-        "0.39.0/bio/picard/markduplicates"
+# rule mark_duplicates:
+#     input:
+#         "results/mapped/{sample}.sorted.bam"
+#     output:
+#         bam=temp("results/dedup/{sample}.sorted.bam"),
+#         metrics="results/qc/dedup/{sample}.metrics.txt"
+#     log:
+#         "logs/picard/dedup/{sample}.log"
+#     params:
+#         config["params"]["picard"]["MarkDuplicates"]
+#     wrapper:
+#         "0.39.0/bio/picard/markduplicates"
 
 
 rule recalibrate_base_qualities:
