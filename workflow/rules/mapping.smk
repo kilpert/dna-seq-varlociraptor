@@ -1,19 +1,35 @@
-rule map_reads:
+# rule map_reads:
+#     input:
+#         reads=get_map_reads_input,
+#         idx=rules.bwa_index.output
+#     output:
+#         temp("results/mapped/{sample}.sorted.bam")
+#     log:
+#         "logs/bwa_mem/{sample}.log"
+#     params:
+#         index=lambda w, input: os.path.splitext(input.idx[0])[0],
+#         extra=get_read_group,
+#         sort="samtools",
+#         sort_order="coordinate"
+#     threads: 100
+#     wrapper:
+#         "0.39.0/bio/bwa/mem"
+
+rule bwa_mem:
     input:
-        reads=get_map_reads_input,
-        idx=rules.bwa_index.output
+         reads=get_map_reads_input,
+         idx=rules.bwa_index.output
     output:
-        temp("results/mapped/{sample}.sorted.bam")
+        bam=temp("results/mapped/{sample}.sorted.bam")
     log:
         "logs/bwa_mem/{sample}.log"
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
         extra=get_read_group,
-        sort="samtools",
-        sort_order="coordinate"
+        sort_extra="-m 150G" # Extra args for sambamba.
     threads: 100
     wrapper:
-        "0.39.0/bio/bwa/mem"
+        "0.58.0/bio/bwa/mem-samblaster"
 
 
 rule mark_duplicates:
