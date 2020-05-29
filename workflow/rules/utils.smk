@@ -18,6 +18,21 @@ rule bam_index:
         "{prefix}.bam"
     output:
         "{prefix}.bam.bai"
+    wildcard_constraints:
+        prefix="!^tmp"
+    log:
+        "logs/bam-index/{prefix}.log"
+    wrapper:
+        "0.39.0/bio/samtools/index"
+
+
+rule bam_index_temp:
+    input:
+        "{prefix}.bam"
+    output:
+        temp("{prefix}.bam.bai")
+    wildcard_constraints:
+        prefix="^tmp"
     log:
         "logs/bam-index/{prefix}.log"
     wrapper:

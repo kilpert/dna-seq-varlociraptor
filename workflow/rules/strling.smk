@@ -3,6 +3,8 @@ rule vcf_to_tsv:
         vcf="strling.vcf"
     output:
         tsv="strling.tsv"
+    conda:
+        "../envs/utils.yaml"
     shell:
         """python workflow/scripts/vcf2tsv.py {input.vcf} --fields ANN[*][1] --fields ANN[*][1] ANN[*][3] --fieldnames region gene --genotypes > {output.tsv}"""
 
@@ -55,6 +57,8 @@ rule strling_call:
         prefix="results/strling_call/{sample}"
     log:
         "logs/strling/{sample}.call.log"
+    conda:
+        "../envs/strling.yaml"
     shell:
         "workflow/scripts/strling call -f {input.ref} {input.bam} {input.bin} -o {params.prefix} -b {input.merged} 2> {log}"
 
@@ -69,6 +73,8 @@ rule strling_merge:
         prefix="results/strling/merge/merged"
     log:
         "logs/strling/merge.log"
+    conda:
+        "../envs/strling.yaml"
     shell:
         "workflow/scripts/strling merge -f {input.ref} -o {params.prefix} {input.bam} 2> {log}"
 
@@ -81,5 +87,7 @@ rule strling_extract:
         bin="results/strling/extract/{sample}.bin",
     log:
         "logs/strling/{sample}.extract.log"
+    conda:
+        "../envs/strling.yaml"
     shell:
         "workflow/scripts/strling extract -f {input.ref} {input.bam} {output.bin} 2> {log}"

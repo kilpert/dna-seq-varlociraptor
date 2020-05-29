@@ -19,6 +19,8 @@ rule cnvpytor:
         calls100000="results/cnvpytor/{sample}.100000.tsv",
     log:
         log="logs/cnvpytor/{sample}.log"
+    conda:
+        "../envs/cnvpytor.yaml"
     shell:
         """
         (
@@ -51,6 +53,8 @@ rule extract_genes:
         calls="results/cnvpytor/{sample}.{length}.genes.txt"
     log:
         log="logs/cnvpytor/extract_genes.{sample}.{length}.log"
+    conda:
+        "../envs/snpsift.yaml"
     shell:
         """
         SnpSift filter "ANN[ANY].EFFECT != 'intergenic_region' & exists ANN[ANY].GENE" {input.calls} | 

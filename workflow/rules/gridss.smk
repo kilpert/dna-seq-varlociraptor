@@ -312,7 +312,6 @@ REALIGN_ENTIRE_READ=true \
 {params.picardoptions}) > {log} 2>&1
         """
 
-
 rule GridssIdentifyVariants:
     input:
         bams=lambda wildcards: expand("results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards)),
