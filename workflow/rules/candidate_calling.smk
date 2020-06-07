@@ -23,7 +23,7 @@ rule freebayes_filter:
         "results/candidate-calls/{group}.freebayes.bcf"
     threads: 0
     shell:
-        "cat {input} | bcftools filter --exclude 'QUAL<1 | FORMAT/AO=0' -Ob > {output}"
+        "cat {input} | bcftools filter --exclude 'QUAL<1' -Ob > {output}" # | FORMAT/AO=0
 
 
 

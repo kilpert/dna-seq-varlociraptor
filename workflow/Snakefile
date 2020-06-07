@@ -23,6 +23,7 @@ include: "rules/oncoprint.smk"
 include: "rules/gridss.smk"
 include: "rules/strling.smk"
 include: "rules/cnvpytor.smk"
+include: "rules/tsv.smk"
 
 groups = samples["group"].unique()
 

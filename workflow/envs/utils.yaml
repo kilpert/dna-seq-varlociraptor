@@ -3,3 +3,4 @@ channels:
   - conda-forge
 dependencies:
   - pyvcf =0.6.8
+  - bcftools =1.10
