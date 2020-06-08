@@ -34,16 +34,27 @@ properties:
         type: string
       release:
         type: integer
-      snpeff_release:
-        type: integer
       build:
         type: string
     required:
       - species
       - release
-      - snpeff_release
       - build
       - n_chromosomes
+
+  primers:
+    type: object
+    properties:
+      trimming:
+        type: object
+        properties:
+          activate: 
+            type: boolean
+          primers_fq1:
+            type: string
+          primers_fq2:
+            type: string
+
 
   oncoprint:
     type: object
@@ -65,6 +76,7 @@ properties:
       activate:
         type: boolean
       coding_genome_size:
+        # TODO allow integer here!
         type: string
       tumor_sample:
         type: string
@@ -117,13 +129,15 @@ properties:
       - filter
       - fdr-control
   
+  remove_duplicates:
+    type: object
+    properties:
+      activate:
+        type: boolean
+
   annotations:
     type: object
     properties:
-      dbnsfp:
-        properties:
-          activate:
-            type: boolean
       vcfs:
         properties:
           activate:
@@ -132,8 +146,19 @@ properties:
         properties:
           activate:
             type: boolean
+      vep:
+        properties:
+          params:
+            type: string
+          plugins:
+            type: array
+            items:
+              type: string
+        required:
+          - params
+          - plugins
     required:
-      - dbnsfp
+      - vep
       - vcfs
       - dgidb
 

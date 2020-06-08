@@ -2,5 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - pysam =0.15
-  - pandas =0.25
+  - mosdepth =0.2.9

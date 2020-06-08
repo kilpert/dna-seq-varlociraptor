@@ -48,8 +48,8 @@ rule bwa_mem:
 
 rule recalibrate_base_qualities:
     input:
-        bam="results/dedup/{sample}.sorted.bam",
-        bai="results/dedup/{sample}.sorted.bam.bai",
+        bam=get_recalibrate_quality_input,
+        bai=lambda w: get_recalibrate_quality_input(w, bai=True),
         ref="resources/genome.fasta",
         ref_dict="resources/genome.dict",
         ref_fai="resources/genome.fasta.fai",
@@ -62,4 +62,4 @@ rule recalibrate_base_qualities:
     params:
         extra=config["params"]["gatk"]["BaseRecalibrator"]
     wrapper:
-        "0.47.0/bio/gatk/baserecalibrator"
+        "0.59.2/bio/gatk/baserecalibrator"
