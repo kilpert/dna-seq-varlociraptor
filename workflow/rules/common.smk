@@ -99,6 +99,8 @@ def get_group_bams(wildcards):
 
 
 def get_regions():
+    if is_activated("calling/limit-regions"):
+        return config["calling"]["limit-regions"]["regions"]
     if is_activated("primers/trimming"):
         return "results/primers/target_regions.bed"
     else:

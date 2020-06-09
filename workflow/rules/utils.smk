@@ -26,7 +26,7 @@ rule bam_index:
         "0.59.2/bio/samtools/index"
 
 
-rule bam_temp
+rule bam_temp:
     input:
         "{prefix}.bam"
     output:

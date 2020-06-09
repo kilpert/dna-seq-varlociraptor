@@ -1,20 +1,53 @@
-rule annotate_variants:
+rule download_snpeff_db:
+    output:
+        directory("resources/snpeff/{ref}")
+    log:
+        "logs/download-snpeff-db/{ref}.log"
+    params:
+        db_dir=lambda _, output: str(Path(output[0]).parent.resolve()),
+        ref="{ref}"
+    conda:
+        "../envs/snpeff.yaml"
+    cache: True
+    shell:
+        "snpEff download -dataDir {params.db_dir} {params.ref} 2> {log}"
+
+rule snpeff:
     input:
         calls="results/calls/{group}.bcf",
-        cache="resources/vep/cache",
-        plugins="resources/vep/plugins"
+        db="resources/snpeff/{build}.{snpeff_release}".format(**config["ref"])
     output:
         calls="results/calls/{group}.annotated.bcf",
-        stats=report("results/calls/{group}.stats.html", caption="../report/stats.rst", category="QC")
-    params:
-        # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
-        # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
-        plugins=config["annotations"]["vep"]["plugins"],
-        extra="{} --vcf_info_field ANN".format(config["annotations"]["vep"]["params"])
+        stats="results/snpeff/{group}.html",
+        csvstats="results/snpeff/{group}.csv"
     log:
-        "logs/vep/{group}.annotate.log"
+        "logs/snpeff/{group}.log"
+    params:
+        reference="{build}.{snpeff_release}".format(**config["ref"]),
+        data_dir=lambda _, input: Path(input.db).parent.resolve(),
+        extra="-Xmx4g -nodownload"
+    resources:
+        mem_mb=4000
     wrapper:
-        "0.59.2/bio/vep/annotate"
+        "0.50.4/bio/snpeff"
+
+# rule annotate_variants:
+#     input:
+#         calls="results/calls/{group}.bcf",
+#         cache="resources/vep/cache",
+#         plugins="resources/vep/plugins"
+#     output:
+#         calls="results/calls/{group}.annotated.bcf",
+#         stats=report("results/calls/{group}.stats.html", caption="../report/stats.rst", category="QC")
+#     params:
+#         # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
+#         # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
+#         plugins=config["annotations"]["vep"]["plugins"],
+#         extra="{} --vcf_info_field ANN".format(config["annotations"]["vep"]["params"])
+#     log:
+#         "logs/vep/{group}.annotate.log"
+#     wrapper:
+#         "0.59.2/bio/vep/annotate"
 
 
 # TODO What about multiple ID Fields?

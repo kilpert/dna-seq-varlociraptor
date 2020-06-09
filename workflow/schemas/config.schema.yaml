@@ -39,6 +39,7 @@ properties:
     required:
       - species
       - release
+      - snpeff_release      
       - build
       - n_chromosomes
 

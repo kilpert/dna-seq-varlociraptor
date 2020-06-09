@@ -15,6 +15,8 @@ ref:
   release: 100
   # Genome build
   build: GRCh38
+  # Ensembl release to use for SnpEff annotation (sometimes, the latest Ensembl release is not available in SnpEff)
+  snpeff_release: 86
 
 primers:
   trimming:
@@ -48,6 +50,10 @@ oncoprint:
     by-column: condition
 
 calling:
+  limit-regions:
+    activate: true
+    regions: resources/SeqCap_EZ_Exome_v3_no_chr_hg38_primary_targets.bed
+
   delly:
     activate: false
   freebayes:
