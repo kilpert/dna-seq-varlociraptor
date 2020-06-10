@@ -17,7 +17,7 @@ fieldnames = args.fieldnames
 use_infos = []
 use_genotypes = []
 
-assert(len(output_infos) == len(fieldnames))
+assert(len(fieldnames) == len(output_infos) + len(genotype_infos))
 
 for x in output_infos:
     name = re.match(r"\w*", x).group() 
@@ -68,8 +68,7 @@ def get_gt_sum(s, gt):
 
 # print header
 print("#chrom", "pos", "ref", "alt", "qual", sep="\t", end="\t")
-print(*fieldnames, sep="\t", end="\t")
-print()
+print(*fieldnames[:len(output_infos)], sep="\t", end="")
 
 if filename == "/dev/stdin" or filename == "-":
     f = sys.stdin
@@ -77,7 +76,14 @@ else:
     f = open(filename, 'r')
 
 for line in f:
+    if line.startswith("##"):
+        continue
     if line.startswith("#"):
+        samples = line.strip().split("\t")[9:]
+        for prefix in fieldnames[len(output_infos):]:
+            for s in samples:
+                print("\t", prefix, s, sep="", end="")
+        print()
         continue
     split = line.strip().split("\t")
     CHROM, POS, ID, REF, ALT, QUAL, FILTER, INFO, FORMAT = split[0:9]

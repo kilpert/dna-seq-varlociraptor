@@ -1,3 +1,16 @@
+def get_filter_expression(w):
+    expression = config["calling"]["filter"][w.filter].get("expression", None)
+    if expression is None:
+        return ""
+    return f"SnpSift filter \"{expression}\" |"
+
+def get_filter_region(w):
+    region = config["calling"]["filter"][w.filter].get("region", None)
+    if region is None:
+        return ""
+    return f"-T \"{region}\""
+
+
 rule filter_by_annotation:
     input:
         get_annotated_bcf
@@ -6,11 +19,12 @@ rule filter_by_annotation:
     log:
         "logs/filter-calls/{group}.{filter}.log"
     params:
-        filter=lambda w: config["calling"]["filter"][w.filter]
+        filter=get_filter_expression,
+        region=get_filter_region
     conda:
         "../envs/snpsift.yaml"
     shell:
-        "(bcftools view {input} | SnpSift filter \"{params.filter}\" | bcftools view -Ob > {output}) 2> {log}"
+        "(bcftools view {input} {params.region} | {params.filter} bcftools view -Ob > {output}) 2> {log}"
 
 
 rule control_fdr:
