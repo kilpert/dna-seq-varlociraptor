@@ -110,13 +110,11 @@ rule build_excluded_regions:
         genome_index = "resources/genome.fasta.fai"
     output:
         "results/primers/excluded_regions.bed"
-    params:
-        chroms=config["ref"]["n_chromosomes"]
     log:
          "logs/regions/excluded_regions.log"
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "(complementBed -i {input.target_regions} -g <(head "
-        "-n {params.chroms} {input.genome_index} | cut "
-        "-f 1,2 | sort -k1,1 -k 2,2n) > {output}) 2> {log}"
+        "(complementBed -i {input.target_regions} "
+        "-g <( cut -f 1,2 {input.genome_index} | "
+        "sort -k1,1 -k 2,2n) > {output}) 2> {log}"
