@@ -35,23 +35,33 @@ units = pd.read_csv(config["units"], sep="\t", dtype={"sample_name": str, "unit_
 validate(units, schema="../schemas/units.schema.yaml")
 
 
+def get_recalibrate_quality_input(wildcards, bai=False):
+    ext = ".bai" if bai else ""
+    if is_activated("remove_duplicates"):
+        return "results/dedup/{}.sorted.bam{}".format(wildcards.sample, ext)
+    else:
+        return "results/mapped/{}.sorted.bam{}".format(wildcards.sample, ext)
+
+
 def get_cutadapt_input(wildcards):
     unit = units.loc[wildcards.sample].loc[wildcards.unit]
-    if unit["fq1"].endswith("gz"):
-        ending = ".gz"
-    else:
-        ending = ""
 
     if pd.isna(unit["fq1"]):
         # SRA sample (always paired-end for now)
         accession = unit["sra"]
         return expand("sra/{accession}_{read}.fastq", accession=accession, read=[1, 2])
+
+    if unit["fq1"].endswith("gz"):
+        ending = ".gz"
+    else:
+        ending = ""
+
     if pd.isna(unit["fq2"]):
         # single end local sample
-        return "pipe/cutadapt/{S}-{U}.fq1.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending)
+        return "pipe/cutadapt/{S}/{U}.fq1.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending)
     else:
         # paired end local sample
-        return expand("pipe/cutadapt/{S}-{U}.{{read}}.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending), read=["fq1","fq2"])
+        return expand("pipe/cutadapt/{S}/{U}.{{read}}.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending), read=["fq1","fq2"])
 
 
 def get_cutadapt_pipe_input(wildcards):
@@ -72,9 +82,9 @@ def is_paired_end(sample):
 
 def get_map_reads_input(wildcards):
     if is_paired_end(wildcards.sample):
-        return ["results/merged/{sample}.1.fastq.gz",
-                "results/merged/{sample}.2.fastq.gz"]
-    return "results/merged/{sample}.single.fastq.gz"
+        return ["results/merged/{sample}_R1.fastq.gz",
+                "results/merged/{sample}_R2.fastq.gz"]
+    return "results/merged/{sample}_single.fastq.gz"
 
 def get_group_aliases(wildcards):
     return samples.loc[samples["group"] == wildcards.group]["alias"]
@@ -86,6 +96,21 @@ def get_group_samples(wildcards):
 
 def get_group_bams(wildcards):
     return expand("results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards))
+
+
+def get_regions():
+    if is_activated("calling/limit-regions"):
+        return config["calling"]["limit-regions"]["regions"]
+    if is_activated("primers/trimming"):
+        return "results/primers/target_regions.bed"
+    else:
+        return []
+
+def get_excluded_regions():
+    if is_activated("primers/trimming"):
+        return "results/primers/excluded_regions.bed"
+    else:
+        return []
 
 def get_group_observations(wildcards):
     return expand("results/observations/{group}/{sample}.{caller}.bcf", 
@@ -143,7 +168,7 @@ def get_oncoprint_batch(wildcards):
         groups = samples["group"].unique()
     else:
         groups = samples.loc[samples[config["oncoprint"]["stratify"]["by-column"]] == wildcards.batch, "group"].unique()
-    return expand("results/merged-calls/{group}.{{event}}.fdr-controlled.bcf", group=groups)
+    return groups
 
 
 def get_merge_calls_input(ext=".bcf"):
@@ -168,16 +193,17 @@ annotations = [(e, f) for e, f in config["annotations"]["vcfs"].items() if e != 
 
 def get_annotation_pipes(wildcards, input):
      if annotations:
-         return " | ".join(
+         return "| {}".format(" | ".join(
              ["SnpSift annotate -name {prefix}_ {path} /dev/stdin".format(prefix=prefix, path=path)
               for (prefix, _), path in zip(annotations, input.annotations)]
+              )
          )
      else:
          return ""
 
 
 def get_annotation_vcfs(idx=False):
-    fmt = lambda f: f if not idx else f + ".tbi"
+    fmt = lambda f: f if not idx else "{}.tbi".format(f)
     return [fmt(f) for _, f in annotations]
 
 
@@ -187,3 +213,8 @@ def get_tabix_params(wildcards):
     if wildcards.format == "txt":
         return "-s 1 -b 2 -e 2"
     raise ValueError("Invalid format for tabix: {}".format(wildcards.format))
+
+
+def get_trimmed_fastqs(wc):
+    subdir = "primers" if is_activated("primers/trimming") else "adapters"
+    return expand("results/trimmed/{subdir}/{sample}/{unit}_{read}.fastq.gz", subdir=subdir, unit=units.loc[wc.sample, "unit_name"], sample=wc.sample, read=wc.read)

@@ -41,6 +41,6 @@ rule all:
         get_gridss_targets(),
         get_final_output(),
         get_tmb_targets(),
-        expand("results/plots/oncoprint/{batch}.{event}.pdf",
-                event=config["calling"]["fdr-control"]["events"],
-                batch=batches)
+        expand("results/plots/oncoprint/{batch}.{event}.html",
+               event=config["calling"]["fdr-control"]["events"],
+               batch=batches)
