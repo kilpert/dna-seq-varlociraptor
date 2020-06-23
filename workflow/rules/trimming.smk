@@ -26,8 +26,8 @@ rule cutadapt_pe:
     input:
         get_cutadapt_input
     output:
-        fastq1="results/trimmed/{sample}-{unit}.1.fastq.gz",
-        fastq2="results/trimmed/{sample}-{unit}.2.fastq.gz",
+        fastq1=pipe("results/trimmed/{sample}-{unit}.1.fastq.gz"),
+        fastq2=pipe("results/trimmed/{sample}-{unit}.2.fastq.gz"),
         qc="results/trimmed/{sample}-{unit}.paired.qc.txt"
     log:
         "logs/cutadapt/{sample}-{unit}.log"

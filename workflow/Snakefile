@@ -36,7 +36,7 @@ if is_activated("oncoprint/stratify"):
 rule all:
     input:
         "strling.tsv",
-        expand("results/cnvpytor/{sample}.{length}.genes.txt", sample=samples["sample_name"], length=[10000, 100000]),
+        #expand("results/cnvpytor/{sample}.{length}.genes.txt", sample=samples["sample_name"], length=[10000, 100000]),
         expand("results/strling_call/{sample}-genotype.bed", sample=samples["sample_name"]),
         get_gridss_targets(),
         get_final_output(),

@@ -13,13 +13,14 @@ rule bcf_index:
         "bcftools index --threads {threads} {input} 2> {log}"
 
 
+    # wildcard_constraints:
+    #     prefix="^results"
+
 rule bam_index:
     input:
         "{prefix}.bam"
     output:
         "{prefix}.bam.bai"
-    wildcard_constraints:
-        prefix="!^tmp"
     log:
         "logs/bam-index/{prefix}.log"
     wrapper:

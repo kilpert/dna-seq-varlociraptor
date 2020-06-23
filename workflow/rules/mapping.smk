@@ -27,7 +27,7 @@ rule bwa_mem:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
         extra=get_read_group,
         sort_extra="-m 150G" # Extra args for sambamba.
-    threads: 100
+    threads: 62
     wrapper:
         "0.58.0/bio/bwa/mem-samblaster"
 
@@ -47,6 +47,8 @@ rule bwa_mem:
 
 
 rule recalibrate_base_qualities:
+    threads:
+        100
     input:
         bam="results/dedup/{sample}.sorted.bam",
         bai="results/dedup/{sample}.sorted.bam.bai",
@@ -62,4 +64,4 @@ rule recalibrate_base_qualities:
     params:
         extra=config["params"]["gatk"]["BaseRecalibrator"]
     wrapper:
-        "0.47.0/bio/gatk/baserecalibrator"
+        "file:///vol/huge/christo/snakemake-wrappers/bio/gatk/baserecalibratorspark"
