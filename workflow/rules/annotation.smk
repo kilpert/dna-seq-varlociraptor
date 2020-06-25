@@ -32,6 +32,8 @@
 #         "0.50.4/bio/snpeff"
 
 rule annotate_variants:
+    threads:
+        20
     input:
         calls="results/calls/{group}.bcf",
         cache="resources/vep/cache",
@@ -47,7 +49,7 @@ rule annotate_variants:
     log:
         "logs/vep/{group}.annotate.log"
     wrapper:
-        "0.59.2/bio/vep/annotate"
+        "0.60.0/bio/vep/annotate"
 
 
 # TODO What about multiple ID Fields?

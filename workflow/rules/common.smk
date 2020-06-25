@@ -19,7 +19,7 @@ def get_final_output():
         final_output = expand("results/merged-calls/{group}.{event}.fdr-controlled.{ending}",
                         group=groups,
                         event=config["calling"]["fdr-control"]["events"],
-                        ending=["bcf", "tsv"],)
+                        ending=["bcf", "xlsx"],)
     return final_output
 
 def _group_or_sample(row):
@@ -193,7 +193,7 @@ annotations = [(e, f) for e, f in config["annotations"]["vcfs"].items() if e != 
 
 def get_annotation_pipes(wildcards, input):
      if annotations:
-         return "| {}".format(" | ".join(
+         return "{}".format(" | ".join(
              ["SnpSift annotate -name {prefix}_ {path} /dev/stdin".format(prefix=prefix, path=path)
               for (prefix, _), path in zip(annotations, input.annotations)]
               )

@@ -1,0 +1,6 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - openpyxl =2.6.1
+  - bcftools =1.10
