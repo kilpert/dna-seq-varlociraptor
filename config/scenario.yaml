@@ -7,14 +7,14 @@
 
 samples:
   index:
-    resolution: 3
+    resolution: 5
     universe: "0.0 | 0.5 | 1.0"
   father:
-    resolution: 3
-    universe: "0.0 | 0.5 | 1.0"
+    resolution: 5
+    universe: "[0.0,0.15] | 0.5 | 1.0"
   mother:
-    resolution: 3
-    universe: "0.0 | 0.5 | 1.0"
+    resolution: 5
+    universe: "[0.0,0.15] | 0.5 | 1.0"
 
 events:
   denovo: "index:[0.5,1.0] & father:0.0 & mother:0.0"

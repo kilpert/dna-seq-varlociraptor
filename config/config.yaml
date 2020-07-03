@@ -69,6 +69,10 @@ calling:
     on_target:
       #expression: "!(ANN[ALL].EFFECT =~ 'intergenic_region')"
       region: "resources/SeqCap_EZ_Exome_v3_no_chr_hg38_primary_targets.bed"
+    on_target_impact:
+      expression_snpsift: "!(gnomad_AF>0.1)"
+      expression_vep: "Impact is HIGH or Impact is MODERATE and (gnomAD_AF < 0.1 or not gnomAD_AF)"
+      region: "resources/SeqCap_EZ_Exome_v3_no_chr_hg38_primary_targets.bed"
     # non_coding?
   fdr-control:
     threshold: 0.05
@@ -86,12 +90,12 @@ calling:
         varlociraptor: 
           - "homozygous_recessive"
         filter: on_target
-      COMPOUND_CANDIDATES:
+      COMPOUNDHET:
         compound_het: true
         varlociraptor:
-          - "compound_heterozgous_candidate_mother"
-          - "compound_heterozgous_candidate_father"
-        filter: on_target
+          - "compound_heterozygous_candidate_mother"
+          - "compound_heterozygous_candidate_father"
+        filter: on_target_impact
 
 remove_duplicates:
   activate: true

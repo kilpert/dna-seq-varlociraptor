@@ -1,11 +1,16 @@
+def comp_het_event(wc):
+    if config["calling"]["fdr-control"]["events"][wc.event].get("compound_het", False):
+        return ["COMPOUND_HETEROZYGOUS"]
+    return []
+
 rule vcf2xl:
     input:
         "results/merged-calls/{group}.{event}.fdr-controlled.bcf"
     output:
         "results/merged-calls/{group}.{event}.fdr-controlled.xlsx"
     params:
-        events=lambda wc: ["PROB_" + x.upper() for x in config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]],
-        eventnames=lambda wc: ["p_" + x.lower() for x in config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]]
+        events=lambda wc: ["PROB_" + x.upper() for x in comp_het_event(wc) + config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]],
+        eventnames=lambda wc: ["p_" + x.lower() for x in comp_het_event(wc) + config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]]
     conda:
         "../envs/tsv2xl.yaml"
     shell:

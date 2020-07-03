@@ -1,8 +1,14 @@
-def get_filter_expression(w):
-    expression = config["calling"]["filter"][w.filter].get("expression", None)
+def get_filter_expression_snpsift(w):
+    expression = config["calling"]["filter"][w.filter].get("expression_snpsift", None)
     if expression is None:
         return ""
-    return f"SnpSift filter \"{expression}\" |"
+    return f"SnpSift filter \"{expression}\" - |"
+
+def get_filter_expression_vep(w):
+    expression = config["calling"]["filter"][w.filter].get("expression_vep", None)
+    if expression is None:
+        return ""
+    return f"filter_vep -o stdout --vcf_info_field ANN --only_matched --filter \"{expression}\" |"
 
 def get_filter_region(w):
     region = config["calling"]["filter"][w.filter].get("region", None)
@@ -19,24 +25,51 @@ rule filter_by_annotation:
     log:
         "logs/filter-calls/{group}.{filter}.log"
     params:
-        filter=get_filter_expression,
+        filter_snpsift=get_filter_expression_snpsift,
+        filter_vep=get_filter_expression_vep,
         region=get_filter_region
     conda:
-        "../envs/snpsift.yaml"
+        "../envs/vep.yaml"
     shell:
-        "(bcftools view {input} {params.region} | {params.filter} bcftools view -Ob > {output}) 2> {log}"
+        "(bcftools view {input} {params.region} | {params.filter_vep} {params.filter_snpsift} bcftools view -Ob > {output}) 2> {log}"
 
+
+def pre_fdr_command(wc):
+    if config["calling"]["fdr-control"]["events"][wc.event].get("compound_het", False):
+        return "| python workflow/scripts/compound_heterozygous.py - PROB_COMPOUND_HETEROZYGOUS_CANDIDATE_MOTHER PROB_COMPOUND_HETEROZYGOUS_CANDIDATE_FATHER | bcftools view -Ob"
+    else:
+        return ""
+
+rule pre_fdr:
+    input:
+        "results/calls/{group}.{filter}.filtered.bcf"
+    output:
+        "tmp/pre_fdr/{group}.{vartype}.{event}.{filter}.fdr-controlled.bcf"
+    params:
+        command=pre_fdr_command
+    conda:
+        "../envs/pre_fdr.yaml"
+    shell:
+        "cat {input} {params.command} > {output}"
+        #"bcftools view {input} | {params.compound}"
+
+
+def control_fdr_events(wc):
+    if config["calling"]["fdr-control"]["events"][wc.event].get("compound_het", False):
+        return "COMPOUND_HETEROZYGOUS"
+    else:
+        return config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]
 
 rule control_fdr:
     input:
-        "results/calls/{group}.{filter}.filtered.bcf"
+        "tmp/pre_fdr/{group}.{vartype}.{event}.{filter}.fdr-controlled.bcf"
     output:
         "results/calls/{group}.{vartype}.{event}.{filter}.fdr-controlled.bcf"
     log:
         "logs/control-fdr/{group}.{vartype}.{event}.{filter}.log"
     params:
         threshold=config["calling"]["fdr-control"]["threshold"],
-        events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]
+        events=control_fdr_events
     conda:
         "../envs/varlociraptor.yaml"
     shell:
