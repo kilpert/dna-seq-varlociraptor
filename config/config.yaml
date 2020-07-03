@@ -1,6 +1,6 @@
-samples: config/samples.tsv
+samples: config/E001_2020.samples_exome.tsv
 
-units: config/units.tsv
+units: config/E001_2020.units_exome.tsv
 
 igv_report:
   activate: true
@@ -58,16 +58,23 @@ calling:
     # and can be referred in FDR control below to generate calls for different events.
     # In particular, you can also filter by ID or dbsnp annotations here.
     # See http://snpeff.sourceforge.net/SnpSift.html#filter
-    filtername: "ANN[*].IMPACT has 'MODERATE'"
+    on_target:
+      ##expression: "!(ANN[ALL].EFFECT =~ 'intergenic_region')"
+      region: resources/Twist_Exome_RefSeq_targets_hg38.nochr.bed
+    # non_coding?
   fdr-control:
-    threshold: 0.05
-    events: 
+    threshold: 1.0 #0.05
+    events:
       # Add any number of events here to filter for.
-      somatic:
-        varlociraptor: 
-          - "SOMATIC_TUMOR_HIGH"
-          - "SOMATIC_TUMOR_MEDIUM"
-        filter: filtername
+      #ALL:
+      #  varlociraptor:
+      #    - "ALL"
+      #  filter: lowMAF_nearGene
+      singleton:
+        varlociraptor:
+          - "homozygous"
+          - "heterozygous"
+        filter: on_target
 
 remove_duplicates:
   activate: true
@@ -77,6 +84,8 @@ annotations:
     activate: true
     # annotate with known variants from ensembl
     known: resources/variation.vcf.gz
+    gnomad: resources/gnomad.genomes.r3.0.sites.allpop.vcf.gz
+    intsplice: resources/intsplice_hg38.vcf.gz
     # add more external VCFs as needed
     # cosmic: path/to/cosmic.vcf.gz
   dgidb:
@@ -89,7 +98,7 @@ annotations:
       - LoFtool
 
 params:
-  cutadapt: ""
+  cutadapt: "-e 0.1 -q 16 -O 3 --trim-n --nextseq-trim=20 --minimum-length 25"
   picard:
     MarkDuplicates: "VALIDATION_STRINGENCY=LENIENT"
   gatk:
