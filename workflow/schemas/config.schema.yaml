@@ -8,7 +8,10 @@ definitions:
   filterentry:
     type: object
     additionalProperties:
-      type: string
+      expression:
+        type: string
+      region:
+        type: string
   evententry:
     type: object
     properties:
