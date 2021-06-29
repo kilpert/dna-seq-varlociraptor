@@ -5,7 +5,8 @@ import glob
 import os
 import re
 
-query="p[FM]5"
+#query="p[FM]5"
+query="pOM1"
 
 fastq_dir="/vol/pico/exome_seq/raw/sequencing_runs"
 units_tsv="/vol/pico/exome_pools/dna-seq-varlociraptor/config/units_pools.tsv"
